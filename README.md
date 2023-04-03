@@ -97,11 +97,11 @@ colors = ['red', 'green', 'blue', 'yellow']
 
 # Forward sorted order
 for color in sorted(colors):
-    print(colors)
+    print(color)
 
 # Backwards sorted order
 for color in sorted(colors, reverse=True):
-    print(colors)
+    print(color)
 ```
 
 ## Custom Sort Order
@@ -109,7 +109,7 @@ for color in sorted(colors, reverse=True):
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
 
-print sorted(colors, key=len)
+print(sorted(colors, key=len))
 ```
 
 ## Call a function until a sentinel value
