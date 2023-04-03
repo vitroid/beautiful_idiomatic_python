@@ -1,5 +1,7 @@
 # Transforming Code into Beautiful, Idiomatic Python
 
+(Modified for Python3 by [vitroid](https://github.com/vitroid))
+
 Notes from Raymond Hettinger's talk at pycon US 2013 [video](http://www.youtube.com/watch?feature=player_embedded&v=OSGv2VnC0go), [slides](https://speakerdeck.com/pyconslides/transforming-code-into-beautiful-idiomatic-python-by-raymond-hettinger-1).
 
 The code examples and direct quotes are all from Raymond's talk. I've reproduced them here for my own edification and the hopes that others will find them as handy as I have!
@@ -8,19 +10,16 @@ The code examples and direct quotes are all from Raymond's talk. I've reproduced
 
 ```python
 for i in [0, 1, 2, 3, 4, 5]:
-    print i**2
-
-for i in range(6):
-    print i**2
+    print(i**2)
 ```
 
 ### Better
 
 ```python
-for i in xrange(6):
-    print i**2
+for i in range(6):
+    print(i**2)
 ```
-`xrange` creates an iterator over the range producing the values one at a time. This approach is much more memory efficient than `range`. `xrange` was renamed to `range` in python 3.
+`range` creates an iterator over the range producing the values one at a time. This approach is much more memory efficient than putting elements.
 
 ## Looping over a collection
 
@@ -28,14 +27,14 @@ for i in xrange(6):
 colors = ['red', 'green', 'blue', 'yellow']
 
 for i in range(len(colors)):
-    print colors[i]
+    print(colors[i])
 ```
 
 ### Better
 
 ```python
 for color in colors:
-    print color
+    print(color)
 ```
 
 ## Looping backwards
@@ -44,14 +43,14 @@ for color in colors:
 colors = ['red', 'green', 'blue', 'yellow']
 
 for i in range(len(colors)-1, -1, -1):
-    print colors[i]
+    print(colors[i])
 ```
 
 ### Better
 
 ```python
 for color in reversed(colors):
-    print color
+    print(color)
 ```
 
 ## Looping over a collection and indices
@@ -60,14 +59,14 @@ for color in reversed(colors):
 colors = ['red', 'green', 'blue', 'yellow']
 
 for i in range(len(colors)):
-    print i, '--->', colors[i]
+    print(i, '--->', colors[i])
 ```
 
 ### Better
 
 ```python
 for i, color in enumerate(colors):
-    print i, '--->', color
+    print(i, '--->', color)
 ```
 > It's fast and beautiful and saves you from tracking the individual indices and incrementing them.
 
@@ -81,21 +80,15 @@ colors = ['red', 'green', 'blue', 'yellow']
 
 n = min(len(names), len(colors))
 for i in range(n):
-    print names[i], '--->', colors[i]
-
-for name, color in zip(names, colors):
-    print name, '--->', color
+    print(names[i], '--->', colors[i])
 ```
 
 ### Better
 
 ```python
-for name, color in izip(names, colors):
-    print name, '--->', color
+for name, color in zip(names, colors):
+    print(name, '--->', color)
 ```
-
-`zip` creates a new list in memory and takes more memory. `izip` is more efficient than `zip`.
-Note: in python 3 `izip` was renamed to `zip` and promoted to a builtin replacing the old `zip`.
 
 ## Looping in sorted order
 
@@ -104,11 +97,11 @@ colors = ['red', 'green', 'blue', 'yellow']
 
 # Forward sorted order
 for color in sorted(colors):
-    print color
+    print(colors)
 
 # Backwards sorted order
 for color in sorted(colors, reverse=True):
-    print color
+    print(colors)
 ```
 
 ## Custom Sort Order
@@ -116,21 +109,8 @@ for color in sorted(colors, reverse=True):
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
 
-def compare_length(c1, c2):
-    if len(c1) < len(c2): return -1
-    if len(c1) > len(c2): return 1
-    return 0
-
-print sorted(colors, cmp=compare_length)
-```
-
-### Better
-
-```python
 print sorted(colors, key=len)
 ```
-
-The original is slow and unpleasant to write. Also, comparison functions are no longer available in python 3.
 
 ## Call a function until a sentinel value
 
@@ -149,6 +129,10 @@ while True:
 blocks = []
 for block in iter(partial(f.read, 32), ''):
     blocks.append(block)
+
+# or
+
+blocks = [block for block in iter(partial(f.read, 32), '')]
 ```
 
 `iter` takes two arguments. The first you call over and over again and the second is a sentinel value.
@@ -187,7 +171,7 @@ Inside of every `for` loop is an `else`.
 d = {'matthew': 'blue', 'rachel': 'green', 'raymond': 'red'}
 
 for k in d:
-    print k
+    print(k)
 
 for k in d.keys():
     if k.startswith('r'):
@@ -199,40 +183,32 @@ When should you use the second and not the first? When you're mutating the dicti
 > If you mutate something while you're iterating over it, you're living in a state of sin and deserve what ever happens to you.
 
 `d.keys()` makes a copy of all the keys and stores them in a list. Then you can modify the dictionary.
-Note: in python 3 to iterate through a dictionary you have to explicitly write: `list(d.keys())` because `d.keys()` returns a "dictionary view" (an iterable that provide a dynamic view on the dictionary’s keys). See [documentation](https://docs.python.org/3/library/stdtypes.html#dict-views).
+Note: in python 3 to iterate through a dictionary you have to explicidly write: `list(d.keys())` because `d.keys()` returns a "dictionary view" (an iterable that provide a dynamic view on the dictionary’s keys). See [documentation](https://docs.python.org/3/library/stdtypes.html#dict-views).
 
 ## Looping over dictionary keys and values
 
 ```python
 # Not very fast, has to re-hash every key and do a lookup
 for k in d:
-    print k, '--->', d[k]
-
-# Makes a big huge list
-for k, v in d.items():
-    print k, '--->', v
+    print(k, '--->', d[k])
 ```
 
 ### Better
 
 ```python
-for k, v in d.iteritems():
-    print k, '--->', v
+for k, v in d.items():
+    print(k, '--->', v)
 ```
 
-`iteritems()` is better as it returns an iterator.
-Note: in python 3 there is no `iteritems()` and `items()` behaviour is close to what `iteritems()` had. See [documentation](https://docs.python.org/3/library/stdtypes.html#dict-views).
- 
 ## Construct a dictionary from pairs
 
 ```python
 names = ['raymond', 'rachel', 'matthew']
 colors = ['red', 'green', 'blue']
 
-d = dict(izip(names, colors))
+d = dict(zip(names, colors))
 # {'matthew': 'blue', 'rachel': 'green', 'raymond': 'red'}
 ```
-For python 3: `d = dict(zip(names, colors))`
 
 ## Counting with dictionaries
 
@@ -258,7 +234,7 @@ for color in colors:
 
 # Slightly more modern but has several caveats, better for advanced users
 # who understand the intricacies
-d = collections.defaultdict(int)
+d = defaultdict(int)
 for color in colors:
     d[color] += 1
 ```
@@ -288,7 +264,7 @@ for name in names:
 ### Better
 
 ```python
-d = collections.defaultdict(list)
+d = defaultdict(list)
 for name in names:
     key = len(name)
     d[key].append(name)
@@ -301,7 +277,7 @@ d = {'matthew': 'blue', 'rachel': 'green', 'raymond': 'red'}
 
 while d:
     key, value = d.popitem()
-    print key, '-->', value
+    print(key, '-->', value)
 ```
 
 `popitem` is atomic so you don't have to put locks around it to use it in threads.
@@ -364,18 +340,17 @@ doctest.testmod()
 ### Better
 
 ```python
-# New testmod return value, a named tuple
+# New testmod return value, a namedTuple
 doctest.testmod()
 # TestResults(failed=0, attempted=4)
 ```
 
-A named tuple is a subclass of tuple so they still work like a regular tuple, but are more friendly.
+A namedTuple is a subclass of tuple so they still work like a regular tuple, but are more friendly.
 
-To make a named tuple, call namedtuple factory function in collections module:
+To make a namedTuple:
 
 ```python
-from collections import namedtuple
-TestResults = namedtuple('TestResults', ['failed', 'attempted'])
+TestResults = namedTuple('TestResults', ['failed', 'attempted'])
 ```
 
 ## Unpacking sequences
@@ -405,7 +380,7 @@ def fibonacci(n):
     x = 0
     y = 1
     for i in range(n):
-        print x
+        print(x)
         t = y
         y = x + y
         x = t
@@ -417,7 +392,7 @@ def fibonacci(n):
 def fibonacci(n):
     x, y = 0, 1
     for i in range(n):
-        print x
+        print(x)
         x, y = y, x + y
 ```
 
@@ -435,9 +410,6 @@ The second approach is more high-level, doesn't risk getting the order wrong and
 ```python
 tmp_x = x + dx * t
 tmp_y = y + dy * t
-# NOTE: The "influence" function here is just an example function, what it does 
-# is not important. The important part is how to manage updating multiple 
-# variables at once.
 tmp_dx = influence(m, x, y, dx, dy, partial='x')
 tmp_dy = influence(m, x, y, dx, dy, partial='y')
 x = tmp_x
@@ -449,9 +421,6 @@ dy = tmp_dy
 ### Better
 
 ```python
-# NOTE: The "influence" function here is just an example function, what it does 
-# is not important. The important part is how to manage updating multiple 
-# variables at once.
 x, y, dx, dy = (x + dx * t,
                 y + dy * t,
                 influence(m, x, y, dx, dy, partial='x'),
@@ -498,10 +467,10 @@ names.insert(0, 'mark')
 ### Better
 
 ```python
-names = collections.deque(['raymond', 'rachel', 'matthew', 'roger',
+names = deque(['raymond', 'rachel', 'matthew', 'roger',
                'betty', 'melissa', 'judith', 'charlie'])
 
-# More efficient with collections.deque
+# More efficient with deque
 del names[0]
 names.popleft()
 names.appendleft('mark')
@@ -527,12 +496,12 @@ def web_lookup(url, saved={}):
 ### Better
 
 ```python
-@cache
+@lru_cache
 def web_lookup(url):
     return urllib.urlopen(url).read()
 ```
 
-Note: since python 3.2 there is a decorator for this in the [standard library](https://docs.python.org/3/library/functools.html): [`functools.lru_cache`](https://pypi.python.org/pypi/backports.functools_lru_cache/1.2.1).
+Note: since python 3.2 there is a decorator for this in the standard library: `functools.lru_cache`.
 
 ## Factor-out temporary contexts
 
@@ -540,7 +509,7 @@ Note: since python 3.2 there is a decorator for this in the [standard library](h
 # Saving the old, restoring the new
 old_context = getcontext().copy()
 getcontext().prec = 50
-print Decimal(355) / Decimal(113)
+print(Decimal(355) / Decimal(113))
 setcontext(old_context)
 ```
 
@@ -548,7 +517,7 @@ setcontext(old_context)
 
 ```python
 with localcontext(Context(prec=50)):
-    print Decimal(355) / Decimal(113)
+    print(Decimal(355) / Decimal(113))
 ```
 
 ## How to open and close files
@@ -577,8 +546,8 @@ lock = threading.Lock()
 # Old-way to use a lock
 lock.acquire()
 try:
-    print 'Critical section 1'
-    print 'Critical section 2'
+    print('Critical section 1')
+    print('Critical section 2')
 finally:
     lock.release()
 ```
@@ -588,8 +557,8 @@ finally:
 ```python
 # New-way to use a lock
 with lock:
-    print 'Critical section 1'
-    print 'Critical section 2'
+    print('Critical section 1')
+    print('Critical section 2')
 ```
 
 ## Factor-out temporary contexts
@@ -655,7 +624,7 @@ def redirect_stdout(fileobj):
     oldstdout = sys.stdout
     sys.stdout = fileobj
     try:
-        yield fileobj
+        yield fieldobj
     finally:
         sys.stdout = oldstdout
 ```
@@ -677,13 +646,13 @@ result = []
 for i in range(10):
     s = i ** 2
     result.append(s)
-print sum(result)
+print(sum(result))
 ```
 
 ### Better
 
 ```python
-print sum(i**2 for i in xrange(10))
+print(sum(i**2 for i in xrange(10)))
 ```
 
 First way tells you what to do, second way tells you what you want.
