@@ -1,27 +1,27 @@
-# Transforming Code into Beautiful, Idiomatic Python
+# コードを美しく、慣用的なPythonに変換する
 
 (Modified for Python3 by [vitroid](https://github.com/vitroid))
 
 Notes from Raymond Hettinger's talk at pycon US 2013 [video](http://www.youtube.com/watch?feature=player_embedded&v=OSGv2VnC0go), [slides](https://speakerdeck.com/pyconslides/transforming-code-into-beautiful-idiomatic-python-by-raymond-hettinger-1).
 
-The code examples and direct quotes are all from Raymond's talk. I've reproduced them here for my own edification and the hopes that others will find them as handy as I have!
+コード例と直接の引用は、すべてRaymondの講演からです。私自身の勉強のため、また他の人が私と同じように便利だと思うことを期待して、ここに再現しました!
 
-## Looping over a range of numbers
+## 数値の範囲をループする
 
 ```python
 for i in [0, 1, 2, 3, 4, 5]:
     print(i**2)
 ```
 
-### Better
+### 改善
 
 ```python
 for i in range(6):
     print(i**2)
 ```
-`range` creates an iterator over the range producing the values one at a time. This approach is much more memory efficient than putting elements.
+`range`は、一度に一つずつ値を生成する範囲に対するイテレータを作成します。この方法は、要素を並べるよりもずっとメモリ効率がいいです。
 
-## Looping over a collection
+## collectionのループ
 
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
@@ -30,14 +30,14 @@ for i in range(len(colors)):
     print(colors[i])
 ```
 
-### Better
+### 改善
 
 ```python
 for color in colors:
     print(color)
 ```
 
-## Looping backwards
+## 逆ループ
 
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
@@ -46,14 +46,14 @@ for i in range(len(colors)-1, -1, -1):
     print(colors[i])
 ```
 
-### Better
+### 改善
 
 ```python
 for color in reversed(colors):
     print(color)
 ```
 
-## Looping over a collection and indices
+## collectionとインデックスでループ
 
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
@@ -62,17 +62,17 @@ for i in range(len(colors)):
     print(i, '--->', colors[i])
 ```
 
-### Better
+### 改善
 
 ```python
 for i, color in enumerate(colors):
     print(i, '--->', color)
 ```
-> It's fast and beautiful and saves you from tracking the individual indices and incrementing them.
+> 高速で美しく、個々のインデックスを追跡してインクリメントする手間を省くことができます。
 
-> Whenever you find yourself manipulating indices [in a collection], you're probably doing it wrong.
+> (collection内の)インデックスを操作していることに気づいたら、おそらく間違った操作をしているはずです。
 
-## Looping over two collections
+## 2つのcollectionsでループ
 
 ```python
 names = ['raymond', 'rachel', 'matthew']
@@ -83,28 +83,28 @@ for i in range(n):
     print(names[i], '--->', colors[i])
 ```
 
-### Better
+### 改善
 
 ```python
 for name, color in zip(names, colors):
     print(name, '--->', color)
 ```
 
-## Looping in sorted order
+## ソートした順でループ
 
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
 
-# Forward sorted order
+# 正順
 for color in sorted(colors):
     print(color)
 
-# Backwards sorted order
+# 逆順
 for color in sorted(colors, reverse=True):
     print(color)
 ```
 
-## Custom Sort Order
+## ほかのソート順
 
 ```python
 colors = ['red', 'green', 'blue', 'yellow']
@@ -123,7 +123,7 @@ while True:
     blocks.append(block)
 ```
 
-### Better
+### 改善
 
 ```python
 blocks = []
@@ -137,7 +137,7 @@ blocks = [block for block in iter(partial(f.read, 32), '')]
 
 `iter` takes two arguments. The first you call over and over again and the second is a sentinel value.
 
-## Distinguishing multiple exit points in loops
+## ループの複数の出口を区別する
 
 ```python
 def find(seq, target):
@@ -151,7 +151,7 @@ def find(seq, target):
     return i
 ```
 
-### Better
+### 改善
 
 ```python
 def find(seq, target):
@@ -165,7 +165,7 @@ def find(seq, target):
 
 Inside of every `for` loop is an `else`.
 
-## Looping over dictionary keys
+## 辞書のキーでループ
 
 ```python
 d = {'matthew': 'blue', 'rachel': 'green', 'raymond': 'red'}
@@ -173,7 +173,7 @@ d = {'matthew': 'blue', 'rachel': 'green', 'raymond': 'red'}
 for k in d:
     print(k)
 
-for k in d.keys():
+for k in list(d.keys()):
     if k.startswith('r'):
         del d[k]
 ```
